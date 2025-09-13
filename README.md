@@ -12,7 +12,6 @@ Just pure, crystalline functionality that loads in milliseconds and works offlin
 
 SūperLight is a markdown editor that fits in a single HTML file. It's smaller than most images on the web, yet more capable than editors 100x its size. Real-time preview, dark mode, sharing, PWA installation – everything you need, nothing you don't.
 
-**File size**: ~85KB  
 **Dependencies**: 0  
 **Load time**: Instant  
 **Works offline**: Always
