@@ -2565,34 +2565,74 @@ _Loading README..._`;
       updateDateTime();
       const clockInterval = setInterval(updateDateTime, 1000);
 
-      // Clean up intervals when PWA is closing
-      window.addEventListener("beforeunload", () => {
+      // PWA Lifecycle Management - Multiple approaches for reliable shutdown
+      let isShuttingDown = false;
+
+      function performCleanShutdown() {
+        if (isShuttingDown) return;
+        isShuttingDown = true;
+
+        // Clear intervals immediately
         clearInterval(clockInterval);
+
+        // Signal service worker synchronously if possible
+        if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+          try {
+            navigator.serviceWorker.controller.postMessage({
+              type: "CLIENT_CLOSING",
+              timestamp: Date.now(),
+            });
+          } catch (e) {
+            console.log("SūperLight: SW message failed (expected during shutdown)");
+          }
+        }
+
+        // Force garbage collection if available (helps with memory cleanup)
+        if (window.gc) {
+          try {
+            window.gc();
+          } catch (e) {}
+        }
+      }
+
+      // Method 1: beforeunload (may be blocked in PWA)
+      window.addEventListener("beforeunload", (e) => {
+        performCleanShutdown();
+        // Don't prevent default - let the close happen
       });
 
-      // Handle PWA lifecycle for clean shutdown
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("beforeunload", () => {
-          navigator.serviceWorker.ready.then((registration) => {
-            // Clean shutdown - let service worker know we're closing
-            if (registration.active) {
-              registration.active.postMessage({ type: "CLIENT_CLOSING" });
-            }
-          });
-        });
+      // Method 2: unload (more reliable for cleanup)
+      window.addEventListener("unload", performCleanShutdown);
 
-        // Handle visibility changes for PWA lifecycle
-        document.addEventListener("visibilitychange", () => {
-          if (document.visibilityState === "hidden") {
-            // App is being hidden/minimized - prepare for potential close
-            navigator.serviceWorker.ready.then((registration) => {
-              if (registration.active) {
-                registration.active.postMessage({ type: "CLIENT_HIDDEN" });
-              }
-            });
+      // Method 3: pagehide (most reliable for PWAs)
+      window.addEventListener("pagehide", performCleanShutdown);
+
+      // Method 4: visibility change (for PWA minimize/hide)
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") {
+          // Don't perform full shutdown on hide, just signal
+          if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+            try {
+              navigator.serviceWorker.controller.postMessage({
+                type: "CLIENT_HIDDEN",
+                timestamp: Date.now(),
+              });
+            } catch (e) {
+              console.log("SūperLight: SW message failed");
+            }
           }
-        });
-      }
+        }
+      });
+
+      // Method 5: focus loss detection (additional PWA support)
+      window.addEventListener("blur", () => {
+        // App lost focus - prepare for potential close
+        setTimeout(() => {
+          if (document.visibilityState === "hidden") {
+            performCleanShutdown();
+          }
+        }, 100);
+      });
 
       // Register service worker for PWA functionality
       if ("serviceWorker" in navigator) {

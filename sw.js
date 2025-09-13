@@ -1,5 +1,5 @@
 // SūperLight Service Worker
-const CACHE_NAME = "superlight-v1.0.2";
+const CACHE_NAME = "superlight-v1.0.3";
 const STATIC_CACHE_URLS = ["./index.html", "./manifest.json", "./README.md"];
 
 // Install event - cache static assets
@@ -156,7 +156,32 @@ self.addEventListener("push", (event) => {
 // Handle messages from client for clean shutdown
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "CLIENT_CLOSING") {
-    console.log("SūperLight: Client closing, preparing for clean shutdown");
-    // Perform any cleanup if needed
+    console.log("SūperLight: Client closing, performing immediate cleanup");
+
+    // Immediately clear any pending operations
+    // This helps prevent the PWA from hanging during shutdown
+    try {
+      // Cancel any pending cache operations
+      if (self.pendingCacheOperations) {
+        self.pendingCacheOperations.forEach((op) => {
+          if (op && typeof op.abort === "function") {
+            op.abort();
+          }
+        });
+        self.pendingCacheOperations = [];
+      }
+
+      // Force immediate cleanup - don't wait for async operations
+      setTimeout(() => {
+        console.log("SūperLight: Forced cleanup complete");
+      }, 0);
+    } catch (error) {
+      console.log("SūperLight: Cleanup error (expected during shutdown):", error.message);
+    }
+  }
+
+  if (event.data && event.data.type === "CLIENT_HIDDEN") {
+    console.log("SūperLight: Client hidden, preparing for potential shutdown");
+    // Lighter cleanup for hide events
   }
 });
