@@ -1,0 +1,2530 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SūperLight</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json" />
+
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="SūperLight" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="SūperLight" />
+    <meta name="description" content="A clean, fast markdown editor with real-time preview and sharing" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="msapplication-config" content="./browserconfig.xml" />
+    <meta name="msapplication-TileColor" content="#ff6b35" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="theme-color" content="#ff6b35" />
+
+    <!-- Apple Touch Icons -->
+    <link
+      rel="apple-touch-icon"
+      href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iMjAiIGZpbGw9IiNmZjZiMzUiLz4KPHN2ZyB4PSI0NSIgeT0iNDUiIHdpZHRoPSI5MCIgaGVpZ2h0PSI5MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHBhdGggZD0iTTMgMTJIMjFNOSA2TDMgMTJMOSAxOE0xNSA2TDIxIDEyTDE1IDE4IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4KPC9zdmc+"
+    />
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iI2ZmNmIzNSIvPgo8cGF0aCBkPSJNOCAxNkgyNE0xMiAxMEw4IDE2TDEyIDIyTTIwIDEwTDI0IDE2TDIwIDIyIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjEuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPgo="
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+        background: #f5f5f5;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        color: #333;
+        overflow: hidden;
+      }
+
+      .container {
+        background: #e8e8e8;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0;
+        padding: 12px 20px;
+        border-bottom: 1px solid #d0d0d0;
+        background: linear-gradient(180deg, #f0f0f0 0%, #e8e8e8 100%);
+        flex-shrink: 0;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo h1 {
+        font-size: 15px;
+        font-weight: 600;
+        color: #333;
+        letter-spacing: 0.3px;
+      }
+
+      .logo-icon {
+        width: 18px;
+        height: 18px;
+        background: linear-gradient(135deg, #333 0%, #555 100%);
+        border-radius: 2px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .tagline {
+        font-size: 9px;
+        color: #777;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        margin-top: 1px;
+      }
+
+      .project-size {
+        color: #ff6b35;
+        font-weight: 600;
+        font-size: 10px;
+      }
+
+      .theme-toggle {
+        padding: 0;
+        background: linear-gradient(145deg, #f5f5f5, #e8e8e8);
+        border: 2px solid #d0d0d0;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+        position: relative;
+      }
+
+      .theme-toggle:hover {
+        background: linear-gradient(145deg, #fff, #f0f0f0);
+        border-color: #ff6b35;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(255, 107, 53, 0.1);
+      }
+
+      .theme-toggle:active {
+        transform: translateY(1px);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .theme-icon {
+        font-size: 16px;
+        line-height: 1;
+        transition: all 0.2s ease;
+      }
+
+      .nav-buttons {
+        display: flex;
+        gap: 2px;
+      }
+
+      .nav-btn {
+        padding: 6px 14px;
+        background: #f8f8f8;
+        border: 1px solid #d8d8d8;
+        color: #555;
+        font-size: 10px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.12s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-family: inherit;
+      }
+
+      .nav-btn:first-child {
+        border-radius: 3px 0 0 3px;
+      }
+
+      .nav-btn:last-child {
+        border-radius: 0 3px 3px 0;
+      }
+
+      .nav-btn.active {
+        background: #333;
+        border-color: #222;
+        color: #fff;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .nav-btn:hover:not(.active) {
+        background: #fff;
+        border-color: #ccc;
+        color: #333;
+      }
+
+      .nav-btn.active:hover {
+        background: #444;
+      }
+
+      .nav-btn:active {
+        transform: translateY(1px);
+      }
+
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0;
+        padding: 10px 20px;
+        border-bottom: 1px solid #d0d0d0;
+        background: linear-gradient(180deg, #f0f0f0 0%, #e8e8e8 100%);
+        flex-shrink: 0;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      }
+
+      .toolbar-left,
+      .toolbar-right {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .file-input {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+      }
+
+      .file-input input[type="file"] {
+        position: absolute;
+        left: -9999px;
+      }
+
+      .file-input label {
+        padding: 10px 16px;
+        background: #f8f8f8;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        color: #333;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: inherit;
+        font-weight: 400;
+      }
+
+      .file-input label:hover {
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn {
+        padding: 8px 14px;
+        background: linear-gradient(145deg, #f8f8f8, #f0f0f0);
+        border: 1px solid #d8d8d8;
+        border-radius: 4px;
+        color: #555;
+        font-size: 10px;
+        cursor: pointer;
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-family: inherit;
+        font-weight: 500;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        position: relative;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        left: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: rgba(255, 107, 53, 0.3);
+        transition: all 0.15s ease;
+      }
+
+      .btn.primary {
+        background: linear-gradient(145deg, #ff6b35, #e55a2b);
+        border-color: #d44a1f;
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      }
+
+      .btn.primary::before {
+        background: rgba(255, 255, 255, 0.6);
+      }
+
+      .btn.primary:hover {
+        background: linear-gradient(145deg, #ff7849, #ff6b35);
+        box-shadow: 0 3px 8px rgba(255, 107, 53, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        transform: translateY(-1px);
+      }
+
+      .btn:hover:not(.primary) {
+        background: linear-gradient(145deg, #fff, #f8f8f8);
+        border-color: #ccc;
+        color: #333;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      }
+
+      .btn:hover:not(.primary)::before {
+        background: rgba(255, 107, 53, 0.6);
+      }
+
+      .btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), inset 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .char-count {
+        font-size: 10px;
+        color: #666;
+        padding: 8px 12px;
+        background: #f0f0f0;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: inherit;
+      }
+
+      .editor-container {
+        display: flex;
+        gap: 0;
+        height: calc(100vh - 162px);
+        flex: 1;
+      }
+
+      .editor-wrapper {
+        flex: 0 0 45%;
+        padding: 0px;
+        background: linear-gradient(145deg, #f8f8f8, #e8e8e8);
+        border-right: 0px solid #d0d0d0;
+        position: relative;
+      }
+
+      .editor-panel {
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        border: 2px solid transparent;
+        padding: 20px 0px 20px 20px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(0, 0, 0, 0.1),
+          0 2px 8px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .editor-textarea {
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+        font-size: 13px;
+        color: #333;
+        resize: none;
+        line-height: 1.6;
+        font-weight: 400;
+        overflow-y: auto;
+        flex: 1;
+        border-radius: 0;
+      }
+
+      .editor-textarea::placeholder {
+        color: #999;
+        font-weight: 300;
+      }
+
+      .preview-panel {
+        flex: 1;
+        background: #fafafa;
+        border: none;
+        border-left: 1px solid #d0d0d0;
+        padding: 24px;
+        overflow-y: auto;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+
+      /* Enhanced GitHub-style markdown rendering */
+      .preview-panel h1,
+      .preview-panel h2,
+      .preview-panel h3,
+      .preview-panel h4,
+      .preview-panel h5,
+      .preview-panel h6 {
+        color: #24292f;
+        margin-top: 24px;
+        margin-bottom: 16px;
+        font-weight: 600;
+        line-height: 1.25;
+      }
+
+      .preview-panel h1 {
+        font-size: 2em;
+        border-bottom: 1px solid #d0d7de;
+        padding-bottom: 0.3em;
+        margin-top: 0;
+      }
+
+      .preview-panel h2 {
+        font-size: 1.5em;
+        border-bottom: 1px solid #d0d7de;
+        padding-bottom: 0.3em;
+      }
+
+      .preview-panel h3 {
+        font-size: 1.25em;
+      }
+
+      .preview-panel h4 {
+        font-size: 1em;
+      }
+
+      .preview-panel h5 {
+        font-size: 0.875em;
+      }
+
+      .preview-panel h6 {
+        font-size: 0.85em;
+        color: #656d76;
+      }
+
+      .preview-panel p {
+        margin-top: 0;
+        margin-bottom: 16px;
+        line-height: 1.6;
+      }
+
+      .preview-panel code {
+        background-color: rgba(175, 184, 193, 0.2);
+        color: #24292f;
+        border-radius: 4px;
+        padding: 0.2em 0.4em;
+        font-size: 85%;
+        font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        border: 1px solid rgba(255, 107, 53, 0.15);
+        box-shadow: 0 1px 2px rgba(255, 107, 53, 0.08);
+      }
+
+      .preview-panel pre {
+        background: #f6f8fa;
+        color: #24292f;
+        border-radius: 6px;
+        padding: 16px 20px;
+        overflow: auto;
+        font-size: 85%;
+        line-height: 1.45;
+        margin: 16px 0;
+        font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        border: 1px solid #d0d7de;
+        border-left: 3px solid #ff6b35;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        position: relative;
+      }
+
+      .preview-panel pre code {
+        background: transparent;
+        color: inherit;
+        padding: 0;
+        border-radius: 0;
+        font-size: inherit;
+        line-height: inherit;
+        border: none;
+        box-shadow: none;
+        display: block;
+        word-wrap: normal;
+        white-space: pre;
+      }
+
+      .preview-panel a {
+        color: #0969da;
+        text-decoration: none;
+      }
+
+      .preview-panel a:hover {
+        text-decoration: underline;
+      }
+
+      .preview-panel ul,
+      .preview-panel ol {
+        margin-top: 0;
+        margin-bottom: 16px;
+        padding-left: 2em;
+      }
+
+      .preview-panel ul ul,
+      .preview-panel ul ol,
+      .preview-panel ol ol,
+      .preview-panel ol ul {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+      .preview-panel li {
+        margin-bottom: 0.25em;
+        line-height: 1.6;
+      }
+
+      .preview-panel li > p {
+        margin-top: 16px;
+      }
+
+      .preview-panel li + li {
+        margin-top: 0.25em;
+      }
+
+      /* Task lists */
+      .preview-panel ul.task-list {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .preview-panel .task-list-item {
+        list-style: none;
+        position: relative;
+        padding-left: 1.6em;
+      }
+
+      .preview-panel .task-list-item input[type="checkbox"] {
+        position: absolute;
+        left: 0;
+        top: 0.3em;
+        margin: 0;
+        width: 1em;
+        height: 1em;
+      }
+
+      .preview-panel blockquote {
+        padding: 0 1em;
+        color: #656d76;
+        border-left: 0.25em solid #d0d7de;
+        margin: 0 0 16px 0;
+      }
+
+      .preview-panel blockquote > :first-child {
+        margin-top: 0;
+      }
+
+      .preview-panel blockquote > :last-child {
+        margin-bottom: 0;
+      }
+
+      .preview-panel hr {
+        height: 0.25em;
+        padding: 0;
+        margin: 24px 0;
+        background-color: #d0d7de;
+        border: 0;
+        border-radius: 2px;
+      }
+
+      .preview-panel img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 6px;
+        margin: 8px 0;
+        box-sizing: content-box;
+      }
+
+      .preview-panel table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        width: 100%;
+        margin: 16px 0;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        overflow: hidden;
+        display: table;
+      }
+
+      .preview-panel th,
+      .preview-panel td {
+        padding: 6px 13px;
+        border: 1px solid #d0d7de;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .preview-panel th {
+        background-color: #f6f8fa;
+        font-weight: 600;
+      }
+
+      .preview-panel tr:nth-child(2n) {
+        background-color: #f6f8fa;
+      }
+
+      .preview-panel tbody tr:hover {
+        background-color: rgba(175, 184, 193, 0.1);
+      }
+
+      /* Responsive tables */
+      @media (max-width: 768px) {
+        .preview-panel table {
+          font-size: 14px;
+        }
+
+        .preview-panel th,
+        .preview-panel td {
+          padding: 4px 8px;
+        }
+      }
+
+      /* Layout states */
+      .container[data-layout="code"] .preview-panel {
+        display: none;
+      }
+
+      .container[data-layout="preview"] .editor-panel {
+        display: none;
+      }
+
+      /* Clean scrollbar styling */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #f0f0f0;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #c0c0c0;
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #a0a0a0;
+      }
+
+      /* Focus states for accessibility */
+      .btn:focus,
+      .nav-btn:focus,
+      .file-input label:focus {
+        outline: 2px solid #ff6b35;
+        outline-offset: 2px;
+      }
+
+      .editor-wrapper:focus-within {
+        background: linear-gradient(145deg, #fff, #f0f0f0);
+      }
+
+      .editor-panel:focus-within {
+        border-color: #ff6b35;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.1),
+          0 4px 12px rgba(255, 107, 53, 0.15), 0 0 0 1px rgba(255, 107, 53, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .editor-textarea:focus {
+        outline: none;
+      }
+
+      /* Import Modal Styles */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s ease;
+      }
+
+      .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .modal {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        width: 90%;
+        max-width: 500px;
+        max-height: 80vh;
+        overflow: hidden;
+        transform: scale(0.9);
+        transition: transform 0.2s ease;
+      }
+
+      .modal-overlay.active .modal {
+        transform: scale(1);
+      }
+
+      .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #d0d0d0;
+        background: #f8f8f8;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        color: #666;
+        cursor: pointer;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+      }
+
+      .modal-close:hover {
+        background: #e0e0e0;
+        color: #333;
+      }
+
+      .modal-tabs {
+        display: flex;
+        border-bottom: 1px solid #d0d0d0;
+        background: #f8f8f8;
+      }
+
+      .modal-tab {
+        flex: 1;
+        padding: 12px 16px;
+        background: none;
+        border: none;
+        color: #666;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: inherit;
+      }
+
+      .modal-tab.active {
+        background: #fff;
+        color: #333;
+        border-bottom: 2px solid #ff6b35;
+      }
+
+      .modal-content {
+        padding: 16px;
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .import-textarea {
+        width: 100%;
+        height: 200px;
+        padding: 16px;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+        font-size: 12px;
+        color: #333;
+        resize: vertical;
+        margin-bottom: 16px;
+      }
+
+      .import-textarea:focus {
+        outline: none;
+        border-color: #ff6b35;
+        box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1);
+      }
+
+      .file-drop-zone {
+        border: 2px dashed #d0d0d0;
+        border-radius: 8px;
+        padding: 40px 20px;
+        text-align: center;
+        background: #fafafa;
+        transition: all 0.15s ease;
+        cursor: pointer;
+        margin-bottom: 16px;
+      }
+
+      .file-drop-zone:hover,
+      .file-drop-zone.drag-over {
+        border-color: #ff6b35;
+        background: rgba(255, 107, 53, 0.05);
+      }
+
+      .file-drop-zone p {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+      }
+
+      .file-drop-zone .file-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+        color: #999;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 20px;
+      }
+
+      .modal-btn {
+        padding: 10px 20px;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        background: #f8f8f8;
+        color: #333;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: inherit;
+      }
+
+      .modal-btn.primary {
+        background: #ff6b35;
+        border-color: #e55a2b;
+        color: #fff;
+      }
+
+      .modal-btn:hover {
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .modal-btn.primary:hover {
+        background: #ff7849;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+      }
+
+      /* Share Modal Styles */
+      .share-option {
+        padding: 12px;
+        border: 1px solid #d0d0d0;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        background: #fafafa;
+        transition: all 0.15s ease;
+      }
+
+      .share-option:hover {
+        background: #f0f0f0;
+        border-color: #ff6b35;
+      }
+
+      .share-option.warning {
+        border-color: #ffa500;
+        background: #fff8f0;
+      }
+
+      .share-option.success {
+        border-color: #28a745;
+        background: #f0fff4;
+      }
+
+      .share-option-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+
+      .share-option-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+      }
+
+      .share-option-status {
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 3px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+      }
+
+      .share-option-status.recommended {
+        background: #28a745;
+        color: white;
+      }
+
+      .share-option-status.warning {
+        background: #ffa500;
+        color: white;
+      }
+
+      .share-option-description {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
+
+      .share-option-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .share-btn-small {
+        padding: 6px 12px;
+        background: #f8f8f8;
+        border: 1px solid #d0d0d0;
+        border-radius: 3px;
+        color: #333;
+        font-size: 10px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: inherit;
+        font-weight: 500;
+      }
+
+      .share-btn-small.primary {
+        background: #ff6b35;
+        border-color: #e55a2b;
+        color: #fff;
+      }
+
+      .share-btn-small:hover {
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .share-btn-small.primary:hover {
+        background: #ff7849;
+      }
+
+      .encoded-text-preview {
+        background: #f6f8fa;
+        border: 1px solid #d0d7de;
+        border-radius: 4px;
+        padding: 8px;
+        font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+        font-size: 9px;
+        color: #24292e;
+        word-break: break-all;
+        max-height: 60px;
+        overflow-y: auto;
+        margin: 6px 0;
+      }
+
+      /* Footer Toolbar Styles */
+      .footer-toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        padding: 6px 20px;
+        background: linear-gradient(0deg, #e8e8e8 0%, #f0f0f0 100%);
+        border-top: 1px solid #d0d0d0;
+        font-size: 11px;
+        color: #666;
+        flex-shrink: 0;
+        height: 28px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      }
+
+      .footer-left {
+        display: flex;
+        align-items: center;
+      }
+
+      .footer-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .footer-right {
+        display: flex;
+        align-items: center;
+        justify-self: end;
+      }
+
+      .stats {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+      }
+
+      .stat-item {
+        font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+        font-size: 9px;
+        color: #777;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-weight: 500;
+      }
+
+      .datetime {
+        font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+        font-size: 9px;
+        color: #777;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-weight: 500;
+      }
+
+      /* Dark Mode Styles */
+      [data-theme="dark"] {
+        background: #1a1a1a;
+        color: #e0e0e0;
+      }
+
+      [data-theme="dark"] .container {
+        background: #1a1a1a;
+      }
+
+      [data-theme="dark"] .header {
+        background: linear-gradient(180deg, #2a2a2a 0%, #222 100%);
+        border-bottom: 1px solid #333;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      [data-theme="dark"] .logo h1 {
+        color: #e0e0e0;
+      }
+
+      [data-theme="dark"] .tagline {
+        color: #999;
+      }
+
+      [data-theme="dark"] .logo-icon {
+        background: linear-gradient(135deg, #ccc 0%, #aaa 100%);
+      }
+
+      [data-theme="dark"] .theme-toggle {
+        background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+        border-color: #444;
+        color: #ccc;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+      }
+
+      [data-theme="dark"] .theme-toggle:hover {
+        background: linear-gradient(145deg, #333, #222);
+        border-color: #ff6b35;
+        color: #fff;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15),
+          inset 0 -1px 0 rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(255, 107, 53, 0.2);
+      }
+
+      [data-theme="dark"] .theme-toggle:active {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+
+      [data-theme="dark"] .nav-btn {
+        background: #2a2a2a;
+        border-color: #444;
+        color: #ccc;
+      }
+
+      [data-theme="dark"] .nav-btn:hover:not(.active) {
+        background: #333;
+        border-color: #555;
+        color: #fff;
+      }
+
+      [data-theme="dark"] .nav-btn.active {
+        background: #e0e0e0;
+        border-color: #ccc;
+        color: #222;
+      }
+
+      [data-theme="dark"] .nav-btn.active:hover {
+        background: #f0f0f0;
+      }
+
+      [data-theme="dark"] .toolbar {
+        background: linear-gradient(180deg, #2a2a2a 0%, #222 100%);
+        border-bottom: 1px solid #333;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      [data-theme="dark"] .btn {
+        background: linear-gradient(145deg, #2a2a2a, #222);
+        border-color: #444;
+        color: #ccc;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+
+      [data-theme="dark"] .btn::before {
+        background: rgba(255, 107, 53, 0.4);
+      }
+
+      [data-theme="dark"] .btn:hover:not(.primary) {
+        background: linear-gradient(145deg, #333, #2a2a2a);
+        border-color: #555;
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      }
+
+      [data-theme="dark"] .btn:hover:not(.primary)::before {
+        background: rgba(255, 107, 53, 0.7);
+      }
+
+      [data-theme="dark"] .btn.primary {
+        background: linear-gradient(145deg, #ff6b35, #e55a2b);
+        border-color: #d44a1f;
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(255, 107, 53, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      }
+
+      [data-theme="dark"] .btn.primary::before {
+        background: rgba(255, 255, 255, 0.6);
+      }
+
+      [data-theme="dark"] .btn.primary:hover {
+        background: linear-gradient(145deg, #ff7849, #ff6b35);
+        box-shadow: 0 3px 8px rgba(255, 107, 53, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      }
+
+      [data-theme="dark"] .editor-panel {
+        background: #1a1a1a;
+        border-right: 1px solid #333;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      [data-theme="dark"] .editor-panel:focus-within {
+        border-color: #ff6b35;
+        box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.3), 0 4px 12px rgba(255, 107, 53, 0.2),
+          0 0 0 1px rgba(255, 107, 53, 0.15);
+        transform: translateY(-1px);
+      }
+
+      [data-theme="dark"] .editor-textarea {
+        background: #1a1a1a;
+        color: #e0e0e0;
+      }
+
+      [data-theme="dark"] .editor-textarea::placeholder {
+        color: #666;
+      }
+
+      [data-theme="dark"] .preview-panel {
+        background: #1e1e1e;
+        border-left: 1px solid #333;
+        color: #d0d0d0;
+      }
+
+      [data-theme="dark"] .preview-panel h1,
+      [data-theme="dark"] .preview-panel h2,
+      [data-theme="dark"] .preview-panel h3,
+      [data-theme="dark"] .preview-panel h4,
+      [data-theme="dark"] .preview-panel h5 {
+        color: #e0e0e0;
+        border-color: #444;
+      }
+
+      [data-theme="dark"] .preview-panel h6 {
+        color: #aaa;
+        border-color: #444;
+      }
+
+      [data-theme="dark"] .preview-panel p {
+        color: #d0d0d0;
+      }
+
+      [data-theme="dark"] .preview-panel code {
+        background-color: rgba(110, 118, 129, 0.4);
+        color: #e0e0e0;
+        border: 1px solid rgba(255, 107, 53, 0.25);
+        box-shadow: 0 1px 2px rgba(255, 107, 53, 0.12);
+      }
+
+      [data-theme="dark"] .preview-panel pre {
+        background: #2a2a2a;
+        color: #e0e0e0;
+        border-color: #444;
+        border-left: 3px solid #ff6b35;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+
+      [data-theme="dark"] .preview-panel a {
+        color: #4da6ff;
+      }
+
+      [data-theme="dark"] .preview-panel blockquote {
+        color: #aaa;
+        border-left-color: #444;
+      }
+
+      [data-theme="dark"] .preview-panel hr {
+        background-color: #444;
+      }
+
+      [data-theme="dark"] .preview-panel table {
+        border-color: #444;
+      }
+
+      [data-theme="dark"] .preview-panel th,
+      [data-theme="dark"] .preview-panel td {
+        border-color: #444;
+      }
+
+      [data-theme="dark"] .preview-panel th {
+        background-color: #2a2a2a;
+      }
+
+      [data-theme="dark"] .preview-panel tr:nth-child(2n) {
+        background-color: #242424;
+      }
+
+      [data-theme="dark"] .preview-panel tbody tr:hover {
+        background-color: rgba(110, 118, 129, 0.2);
+      }
+
+      [data-theme="dark"] .footer-toolbar {
+        background: linear-gradient(0deg, #222 0%, #2a2a2a 100%);
+        border-top: 1px solid #333;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      [data-theme="dark"] .stat-item,
+      [data-theme="dark"] .datetime {
+        color: #999;
+      }
+
+      [data-theme="dark"] .project-size {
+        color: #ff6b35 !important;
+      }
+
+      [data-theme="dark"] .modal-overlay {
+        background: rgba(0, 0, 0, 0.7);
+      }
+
+      [data-theme="dark"] .modal {
+        background: #222;
+        color: #e0e0e0;
+      }
+
+      [data-theme="dark"] .modal-header {
+        background: #2a2a2a;
+        border-bottom: 1px solid #333;
+      }
+
+      [data-theme="dark"] .modal-title {
+        color: #e0e0e0;
+      }
+
+      [data-theme="dark"] .modal-close {
+        color: #ccc;
+      }
+
+      [data-theme="dark"] .modal-close:hover {
+        background: #333;
+        color: #fff;
+      }
+
+      [data-theme="dark"] .modal-tabs {
+        background: #2a2a2a;
+        border-bottom: 1px solid #333;
+      }
+
+      [data-theme="dark"] .modal-tab {
+        color: #ccc;
+      }
+
+      [data-theme="dark"] .modal-tab.active {
+        background: #222;
+        color: #e0e0e0;
+        border-bottom-color: #ff6b35;
+      }
+
+      [data-theme="dark"] .import-textarea {
+        background: #1a1a1a;
+        border-color: #444;
+        color: #e0e0e0;
+      }
+
+      [data-theme="dark"] .import-textarea:focus {
+        border-color: #ff6b35;
+        box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+      }
+
+      [data-theme="dark"] .file-drop-zone {
+        background: #1e1e1e;
+        border-color: #444;
+      }
+
+      [data-theme="dark"] .file-drop-zone:hover,
+      [data-theme="dark"] .file-drop-zone.drag-over {
+        border-color: #ff6b35;
+        background: rgba(255, 107, 53, 0.1);
+      }
+
+      [data-theme="dark"] .file-drop-zone p {
+        color: #ccc;
+      }
+
+      [data-theme="dark"] .modal-btn {
+        background: #2a2a2a;
+        border-color: #444;
+        color: #ccc;
+      }
+
+      [data-theme="dark"] .modal-btn:hover {
+        background: #333;
+        color: #fff;
+      }
+
+      [data-theme="dark"] .modal-btn.primary {
+        background: #ff6b35;
+        border-color: #e55a2b;
+        color: #fff;
+      }
+
+      [data-theme="dark"] .modal-btn.primary:hover {
+        background: #ff7849;
+      }
+
+      [data-theme="dark"] .share-option {
+        background: #1e1e1e;
+        border-color: #444;
+      }
+
+      [data-theme="dark"] .share-option:hover {
+        background: #242424;
+        border-color: #ff6b35;
+      }
+
+      [data-theme="dark"] .share-option.success {
+        border-color: #28a745;
+        background: #1a2e1a;
+      }
+
+      [data-theme="dark"] .share-option.warning {
+        border-color: #ffa500;
+        background: #2e2a1a;
+      }
+
+      [data-theme="dark"] .share-option-title {
+        color: #e0e0e0;
+      }
+
+      [data-theme="dark"] .share-option-description {
+        color: #ccc;
+      }
+
+      [data-theme="dark"] .encoded-text-preview {
+        background: #2a2a2a;
+        border-color: #444;
+        color: #e0e0e0;
+      }
+
+      [data-theme="dark"] .share-btn-small {
+        background: #2a2a2a;
+        border-color: #444;
+        color: #ccc;
+      }
+
+      [data-theme="dark"] .share-btn-small:hover {
+        background: #333;
+        color: #fff;
+      }
+
+      [data-theme="dark"] .share-btn-small.primary {
+        background: #ff6b35;
+        border-color: #e55a2b;
+        color: #fff;
+      }
+
+      [data-theme="dark"] .share-btn-small.primary:hover {
+        background: #ff7849;
+      }
+
+      [data-theme="dark"] ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      [data-theme="dark"] ::-webkit-scrollbar-track {
+        background: #1a1a1a;
+      }
+
+      [data-theme="dark"] ::-webkit-scrollbar-thumb {
+        background: #444;
+        border-radius: 4px;
+      }
+
+      [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+
+      /* Mobile responsive */
+      @media (max-width: 980px) {
+        .editor-container {
+          flex-direction: column;
+          height: auto;
+          min-height: calc(100vh - 162px);
+        }
+
+        .stats {
+          gap: 12px;
+        }
+
+        .footer-toolbar {
+          padding: 6px 16px;
+          font-size: 9px;
+        }
+
+        .stat-item,
+        .datetime {
+          font-size: 9px;
+        }
+
+        .editor-panel {
+          flex: none;
+          border-right: none;
+          border-bottom: 1px solid #d0d0d0;
+          min-height: 300px;
+        }
+
+        .preview-panel {
+          border-left: none;
+          border-top: 1px solid #d0d0d0;
+        }
+
+        .toolbar {
+          flex-direction: column;
+          gap: 16px;
+          align-items: stretch;
+        }
+
+        .toolbar-left,
+        .toolbar-right {
+          justify-content: center;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .nav-buttons {
+          flex-wrap: wrap;
+        }
+
+        .header {
+          flex-direction: column;
+          gap: 16px;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container" data-layout="split">
+      <header class="header">
+        <div class="logo">
+          <div class="logo-icon"></div>
+          <div>
+            <h1>SūperLight</h1>
+            <div class="tagline">Markdown Editor</div>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+            <span class="theme-icon">☀️</span>
+          </button>
+          <nav class="nav-buttons">
+            <button class="nav-btn" data-layout="code">Code</button>
+            <button class="nav-btn active" data-layout="split">Split</button>
+            <button class="nav-btn" data-layout="preview">Preview</button>
+          </nav>
+        </div>
+      </header>
+
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <button class="btn" id="import-btn">Import</button>
+          <button class="btn" id="clear-btn">Clear</button>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn" id="share-btn">Share</button>
+        </div>
+      </div>
+
+      <div class="editor-container">
+        <div class="editor-wrapper">
+          <div class="editor-panel">
+            <textarea class="editor-textarea" placeholder="# Start typing..."></textarea>
+          </div>
+        </div>
+        <div class="preview-panel">
+          <p style="color: #999; font-style: italic">Preview will appear here...</p>
+        </div>
+      </div>
+
+      <!-- Footer Toolbar -->
+      <footer class="footer-toolbar">
+        <div class="footer-left">
+          <div class="stats">
+            <span class="stat-item" id="char-count">Chars: 0</span>
+            <span class="stat-item" id="word-count">Words: 0</span>
+            <span class="stat-item" id="line-count">Lines: 0</span>
+          </div>
+        </div>
+        <div class="footer-center">
+          <span class="stat-item project-size" id="project-size">Project Size: calculating...</span>
+        </div>
+        <div class="footer-right">
+          <div class="datetime" id="datetime">Loading...</div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal-overlay" id="import-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title">Import Markdown</h3>
+          <button class="modal-close" id="modal-close">&times;</button>
+        </div>
+        <div class="modal-tabs">
+          <button class="modal-tab active" data-tab="paste">Paste Content</button>
+          <button class="modal-tab" data-tab="file">Upload File</button>
+        </div>
+        <div class="modal-content">
+          <div class="tab-content active" id="paste-tab">
+            <textarea
+              class="import-textarea"
+              id="import-textarea"
+              placeholder="Paste your markdown content, share links, or encoded text here..."
+            ></textarea>
+            <div class="modal-actions">
+              <button class="modal-btn" id="cancel-import">Cancel</button>
+              <button class="modal-btn primary" id="import-paste">Import</button>
+            </div>
+          </div>
+          <div class="tab-content" id="file-tab">
+            <div class="file-drop-zone" id="file-drop-zone">
+              <div class="file-icon">📄</div>
+              <p><strong>Click to select</strong> or drag and drop a markdown file</p>
+              <p style="font-size: 12px; color: #999; margin-top: 8px">Supports .md and .txt files</p>
+            </div>
+            <input type="file" id="modal-file-input" accept=".md,.txt" style="display: none" />
+            <div class="modal-actions">
+              <button class="modal-btn" id="cancel-file">Cancel</button>
+              <button class="modal-btn primary" id="import-file" disabled>Import</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="modal-overlay" id="share-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 class="modal-title">Share Document</h3>
+          <button class="modal-close" id="share-modal-close">&times;</button>
+        </div>
+        <div class="modal-content">
+          <div id="share-options">
+            <!-- Share options will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // =================== Config ===================
+      const START = "MDHISTORY:v1";
+      const END = "END-MDHISTORY";
+
+      // =================== Utils ===================
+      const b64enc = (str) => {
+        const bytes = new TextEncoder().encode(str);
+        let bin = "";
+        bytes.forEach((b) => (bin += String.fromCharCode(b)));
+        return btoa(bin);
+      };
+      const b64dec = (b64) => {
+        try {
+          const bin = atob(b64);
+          const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+          return new TextDecoder().decode(bytes);
+        } catch {
+          return "";
+        }
+      };
+
+      const b64urlFromBytes = (bytes) => {
+        let bin = "";
+        bytes.forEach((b) => (bin += String.fromCharCode(b)));
+        return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+      };
+      const bytesFromB64url = (b64u) => {
+        let s = b64u.replace(/-/g, "+").replace(/_/g, "/");
+        const pad = s.length % 4;
+        if (pad) s += "====".slice(pad);
+        const bin = atob(s);
+        const arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return arr;
+      };
+
+      async function gzipString(str) {
+        const enc = new TextEncoder().encode(str);
+        const cs = new CompressionStream("gzip");
+        const stream = new Blob([enc]).stream().pipeThrough(cs);
+        const buf = await new Response(stream).arrayBuffer();
+        return new Uint8Array(buf);
+      }
+      async function gunzipBytes(bytes) {
+        const ds = new DecompressionStream("gzip");
+        const stream = new Blob([bytes]).stream().pipeThrough(ds);
+        const buf = await new Response(stream).arrayBuffer();
+        return new Uint8Array(buf);
+      }
+
+      // Enhanced GitHub-compatible Markdown renderer
+      function mdToHtml(md) {
+        if (!md.trim()) return '<p style="color: #999; font-style: italic">Preview will appear here...</p>';
+
+        let html = md.replace(/\r\n?/g, "\n");
+
+        // Process in the correct order to avoid conflicts
+        html = processCodeBlocks(html);
+        html = processHorizontalRules(html);
+        html = processTables(html);
+        html = processHeaders(html);
+        html = processBlockquotes(html);
+        html = processLists(html);
+        html = processImages(html);
+        html = processLinks(html);
+        html = processTextFormatting(html);
+        html = processParagraphs(html);
+
+        return html;
+      }
+
+      function processCodeBlocks(text) {
+        // Handle fenced code blocks with language specification
+        return text.replace(/```(\w*)\n?([\s\S]*?)```/g, (match, lang, code) => {
+          const language = lang ? ` class="language-${esc(lang)}"` : "";
+          return `<pre><code${language}>${esc(code.trim())}</code></pre>`;
+        });
+      }
+
+      function processHorizontalRules(text) {
+        return text.replace(/^(\s*)(---+|___+|\*\*\*+)\s*$/gm, "<hr>");
+      }
+
+      function processTables(text) {
+        return text.replace(/(^|\n\n)(\s*\|.+\|(?:\s*\n\s*\|.+\|)*)/gm, (match, prefix, tableContent) => {
+          const lines = tableContent
+            .trim()
+            .split("\n")
+            .map((line) => line.trim());
+          if (lines.length < 2) return match;
+
+          const headerRow = lines[0];
+          const separatorRow = lines[1];
+          const dataRows = lines.slice(2);
+
+          // Validate separator row
+          if (!/^\|\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|$/.test(separatorRow)) return match;
+
+          // Parse alignment from separator
+          const alignments = separatorRow
+            .split("|")
+            .slice(1, -1)
+            .map((cell) => {
+              const trimmed = cell.trim();
+              if (trimmed.startsWith(":") && trimmed.endsWith(":")) return "center";
+              if (trimmed.endsWith(":")) return "right";
+              return "left";
+            });
+
+          let table = "<table>\n<thead>\n<tr>";
+          const headerCells = headerRow.split("|").slice(1, -1);
+          headerCells.forEach((cell, i) => {
+            const align = alignments[i] ? ` style="text-align: ${alignments[i]}"` : "";
+            table += `<th${align}>${processInlineFormatting(cell.trim())}</th>`;
+          });
+          table += "</tr>\n</thead>\n<tbody>\n";
+
+          dataRows.forEach((row) => {
+            table += "<tr>";
+            const cells = row.split("|").slice(1, -1);
+            cells.forEach((cell, i) => {
+              const align = alignments[i] ? ` style="text-align: ${alignments[i]}"` : "";
+              table += `<td${align}>${processInlineFormatting(cell.trim())}</td>`;
+            });
+            table += "</tr>\n";
+          });
+          table += "</tbody>\n</table>";
+
+          // Return with proper prefix (preserve paragraph breaks)
+          return prefix + table;
+        });
+      }
+
+      function processHeaders(text) {
+        return text.replace(/^(#{1,6})\s+(.+)$/gm, (match, hashes, content) => {
+          const level = hashes.length;
+          const id = content
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, "")
+            .replace(/\s+/g, "-");
+          return `<h${level} id="${id}">${processInlineFormatting(content.trim())}</h${level}>`;
+        });
+      }
+
+      function processBlockquotes(text) {
+        return text.replace(/(^|\n)(>\s*.+(?:\n>\s*.+)*)/gm, (match, prefix, quote) => {
+          const lines = quote.split("\n").map((line) => line.replace(/^>\s?/, ""));
+          const content = lines.join("\n");
+          return `${prefix}<blockquote>\n${mdToHtml(content)}\n</blockquote>`;
+        });
+      }
+
+      function processLists(text) {
+        // Process task lists first
+        text = text.replace(/(^|\n)((?:\s*[-*+]\s+\[[ x]\]\s+.+(?:\n|$))+)/gm, (match, prefix, listContent) => {
+          const items = listContent.split("\n").filter((line) => line.trim());
+          let html = `${prefix}<ul class="task-list">\n`;
+
+          items.forEach((item) => {
+            const taskMatch = item.match(/^\s*[-*+]\s+\[([x ])\]\s+(.+)$/);
+            if (taskMatch) {
+              const [, checked, content] = taskMatch;
+              const isChecked = checked === "x" ? "checked" : "";
+              html += `<li class="task-list-item"><input type="checkbox" ${isChecked} disabled> ${processInlineFormatting(
+                content
+              )}</li>\n`;
+            }
+          });
+
+          html += "</ul>";
+          return html;
+        });
+
+        // Process ordered lists
+        text = text.replace(
+          /(^|\n)((?:\s*\d+\.\s+.+(?:\n(?:\s*\d+\.\s+.+|\s*\n)*)*)+)/gm,
+          (match, prefix, listContent) => {
+            const lines = listContent.split("\n").filter((line) => line.trim());
+            let html = `${prefix}<ol>\n`;
+
+            lines.forEach((line) => {
+              const itemMatch = line.match(/^\s*\d+\.\s+(.+)$/);
+              if (itemMatch) {
+                html += `<li>${processInlineFormatting(itemMatch[1])}</li>\n`;
+              }
+            });
+
+            html += "</ol>";
+            return html;
+          }
+        );
+
+        // Process unordered lists
+        text = text.replace(
+          /(^|\n)((?:\s*[-*+]\s+.+(?:\n(?:\s*[-*+]\s+.+|\s*\n)*)*)+)/gm,
+          (match, prefix, listContent) => {
+            const lines = listContent.split("\n").filter((line) => line.trim());
+            let html = `${prefix}<ul>\n`;
+
+            lines.forEach((line) => {
+              const itemMatch = line.match(/^\s*[-*+]\s+(.+)$/);
+              if (itemMatch) {
+                html += `<li>${processInlineFormatting(itemMatch[1])}</li>\n`;
+              }
+            });
+
+            html += "</ul>";
+            return html;
+          }
+        );
+
+        return text;
+      }
+
+      function processImages(text) {
+        return text.replace(/!\[([^\]]*)\]\(([^)]+)(?:\s+"([^"]*)")?\)/g, (match, alt, src, title) => {
+          const titleAttr = title ? ` title="${esc(title)}"` : "";
+          return `<img src="${esc(src)}" alt="${esc(alt)}"${titleAttr} />`;
+        });
+      }
+
+      function processLinks(text) {
+        // Handle reference-style links first
+        const refLinks = {};
+        text = text.replace(/^\[([^\]]+)\]:\s*(.+)$/gm, (match, label, url) => {
+          refLinks[label.toLowerCase()] = url.trim();
+          return "";
+        });
+
+        // Process reference links
+        text = text.replace(/\[([^\]]+)\]\[([^\]]*)\]/g, (match, linkText, ref) => {
+          const refKey = (ref || linkText).toLowerCase();
+          const url = refLinks[refKey];
+          if (url) {
+            return `<a href="${esc(url)}" target="_blank" rel="noopener">${processInlineFormatting(linkText)}</a>`;
+          }
+          return match;
+        });
+
+        // Process inline links
+        return text.replace(/\[([^\]]+)\]\(([^)]+)(?:\s+"([^"]*)")?\)/g, (match, linkText, url, title) => {
+          const titleAttr = title ? ` title="${esc(title)}"` : "";
+          return `<a href="${esc(url)}" target="_blank" rel="noopener"${titleAttr}>${processInlineFormatting(
+            linkText
+          )}</a>`;
+        });
+      }
+
+      function processInlineFormatting(text) {
+        // Handle inline code first to protect it from other formatting
+        text = text.replace(/`([^`]+)`/g, (match, code) => {
+          return `<code>${esc(code)}</code>`;
+        });
+
+        // Handle strong/bold (** or __)
+        text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        text = text.replace(/__([^_]+)__/g, "<strong>$1</strong>");
+
+        // Handle emphasis/italic (* or _)
+        text = text.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+        text = text.replace(/_([^_]+)_/g, "<em>$1</em>");
+
+        // Handle strikethrough
+        text = text.replace(/~~([^~]+)~~/g, "<del>$1</del>");
+
+        return text;
+      }
+
+      function processTextFormatting(text) {
+        return processInlineFormatting(text);
+      }
+
+      function processParagraphs(text) {
+        // Split by double newlines to identify paragraph breaks
+        const blocks = text.split(/\n\s*\n/);
+
+        return blocks
+          .map((block) => {
+            block = block.trim();
+            if (!block) return "";
+
+            // Skip if it's already an HTML element
+            if (block.match(/^<(h[1-6]|ul|ol|blockquote|pre|table|hr|div)/)) {
+              return block;
+            }
+
+            // Skip if it's a table (starts with |)
+            if (block.match(/^\|/)) {
+              return block;
+            }
+
+            // Handle single line breaks within paragraphs
+            block = block.replace(/\n/g, "<br>");
+
+            return `<p>${block}</p>`;
+          })
+          .filter((block) => block) // Remove empty blocks
+          .join("\n\n");
+      }
+
+      const esc = (x) => {
+        if (typeof x !== "string") return x;
+        return x.replace(
+          /[&<>"']/g,
+          (m) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[m])
+        );
+      };
+
+      // History functions (simplified for this example)
+      function extractHistoryBlock(md) {
+        const re = new RegExp(`<!--\\s*${START}[\\s\\S]*?${END}\\s*-->\\s*$`);
+        const m = md.match(re);
+        return m ? m[0] : null;
+      }
+      function stripHistory(md) {
+        const blk = extractHistoryBlock(md);
+        return blk ? md.slice(0, md.lastIndexOf(blk)).trimEnd() : md.trimEnd?.() ?? md;
+      }
+
+      // =================== App State ===================
+      let currentMd = `# SūperLight ⚡
+
+_Loading README..._`;
+
+      let loadedFilename = "README.md";
+
+      // =================== DOM Elements ===================
+      const container = document.querySelector(".container");
+      const textarea = document.querySelector(".editor-textarea");
+      const preview = document.querySelector(".preview-panel");
+      const navButtons = document.querySelectorAll(".nav-btn");
+
+      // Footer elements
+      const charCountEl = document.getElementById("char-count");
+      const wordCountEl = document.getElementById("word-count");
+      const lineCountEl = document.getElementById("line-count");
+      const datetimeEl = document.getElementById("datetime");
+      const importBtn = document.getElementById("import-btn");
+      const clearBtn = document.getElementById("clear-btn");
+      const shareBtn = document.getElementById("share-btn");
+      const themeToggle = document.getElementById("theme-toggle");
+
+      // Modal elements
+      const importModal = document.getElementById("import-modal");
+      const modalClose = document.getElementById("modal-close");
+      const modalTabs = document.querySelectorAll(".modal-tab");
+      const importTextarea = document.getElementById("import-textarea");
+      const importPasteBtn = document.getElementById("import-paste");
+      const cancelImportBtn = document.getElementById("cancel-import");
+      const fileDropZone = document.getElementById("file-drop-zone");
+      const modalFileInput = document.getElementById("modal-file-input");
+      const importFileBtn = document.getElementById("import-file");
+      const cancelFileBtn = document.getElementById("cancel-file");
+
+      // Share modal elements
+      const shareModal = document.getElementById("share-modal");
+      const shareModalClose = document.getElementById("share-modal-close");
+      const shareOptions = document.getElementById("share-options");
+
+      // =================== Functions ===================
+      function renderAll() {
+        const visible = stripHistory(currentMd);
+        preview.innerHTML = mdToHtml(visible);
+        updateStats();
+      }
+
+      function updateStats() {
+        const text = currentMd;
+        const chars = text.length;
+        const words = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
+        const lines = text === "" ? 0 : text.split("\n").length;
+
+        charCountEl.textContent = `Chars: ${chars}`;
+        wordCountEl.textContent = `Words: ${words}`;
+        lineCountEl.textContent = `Lines: ${lines}`;
+      }
+
+      function updateDateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString("en-US", {
+          hour12: false,
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+        const dateString = now.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+        datetimeEl.textContent = `${dateString} ${timeString}`;
+      }
+
+      function setLayout(layout) {
+        container.dataset.layout = layout;
+        navButtons.forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.layout === layout);
+        });
+      }
+
+      // Modal functions
+      function showModal() {
+        importModal.classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      function hideModal() {
+        importModal.classList.remove("active");
+        document.body.style.overflow = "";
+        // Reset modal state
+        importTextarea.value = "";
+        modalFileInput.value = "";
+        importFileBtn.disabled = true;
+        setActiveTab("paste");
+      }
+
+      function setActiveTab(tabName) {
+        modalTabs.forEach((tab) => {
+          tab.classList.toggle("active", tab.dataset.tab === tabName);
+        });
+        document.getElementById("paste-tab").classList.toggle("active", tabName === "paste");
+        document.getElementById("file-tab").classList.toggle("active", tabName === "file");
+      }
+
+      async function tryDecodeContent(content) {
+        // Handle full URLs - extract the hash part
+        if (content.includes("#MDLITE:")) {
+          const hashPart = content.split("#")[1];
+          if (hashPart && hashPart.startsWith("MDLITE:")) {
+            return await tryDecodeContent(hashPart);
+          }
+        }
+
+        // Try to decode if it looks like encoded content
+        if (content.startsWith("MDLITE:")) {
+          try {
+            const [tag, rest] = content.split("|", 2);
+            const restAll = content.slice(tag.length + 1);
+            if (restAll.startsWith("b64|")) {
+              const data = restAll.slice("b64|".length);
+              return b64dec(data);
+            } else if (restAll.startsWith("gz-b64url|")) {
+              // Handle gzip decompression
+              const data = restAll.slice("gz-b64url|".length);
+              const bytes = bytesFromB64url(data);
+              const decompressed = await gunzipBytes(bytes);
+              return new TextDecoder().decode(decompressed);
+            }
+          } catch (e) {
+            console.warn("Failed to decode content", e);
+          }
+        }
+        return content;
+      }
+
+      // Share modal functions
+      function showShareModal() {
+        shareModal.classList.add("active");
+        document.body.style.overflow = "hidden";
+        generateShareOptions();
+      }
+
+      function hideShareModal() {
+        shareModal.classList.remove("active");
+        document.body.style.overflow = "";
+      }
+
+      async function generateShareOptions() {
+        const contentToShare = currentMd;
+        const options = [];
+
+        try {
+          // Option 1: Direct URL (best case)
+          let directUrl = "";
+          let directPayload = "";
+
+          if ("CompressionStream" in window && "DecompressionStream" in window) {
+            const gz = await gzipString(contentToShare);
+            directPayload = `MDLITE:v1|gz-b64url|` + b64urlFromBytes(gz);
+          } else {
+            directPayload = `MDLITE:v1|b64|` + b64enc(contentToShare);
+          }
+
+          directUrl = location.origin + location.pathname + "#" + directPayload;
+
+          // Single unified sharing option - handles both URL and encoded content
+          let title, description, status, statusClass, className;
+
+          if (directUrl.length <= 2000) {
+            title = "Share Link";
+            description = "Perfect size for all messengers. Recipient can paste the full URL into Import.";
+            status = "recommended";
+            statusClass = "recommended";
+            className = "success";
+          } else if (directUrl.length <= 8000) {
+            title = "Share Link";
+            description = "May not work in some messengers (WhatsApp, SMS). Recipient can paste into Import.";
+            status = "warning";
+            statusClass = "warning";
+            className = "warning";
+          } else {
+            title = "Share Content";
+            description = "Content too large for URL. Copy this text for sharing. Recipient pastes into Import.";
+            status = "recommended";
+            statusClass = "recommended";
+            className = "";
+          }
+
+          options.push({
+            title,
+            status,
+            statusClass,
+            description,
+            type: "share",
+            payload: directUrl.length <= 8000 ? directUrl : directPayload,
+            className,
+          });
+
+          // Option 3: File download (always available) - more compact
+          options.push({
+            title: "Download File",
+            status: "",
+            statusClass: "",
+            description: "Save as .md file for email or cloud sharing.",
+            type: "file",
+            payload: contentToShare,
+            className: "",
+          });
+        } catch (e) {
+          console.error("Error generating share options:", e);
+        }
+
+        renderShareOptions(options);
+      }
+
+      function renderShareOptions(options) {
+        shareOptions.innerHTML = options
+          .map(
+            (option, index) => `
+          <div class="share-option ${option.className}">
+            <div class="share-option-header">
+              <h4 class="share-option-title">${option.title}</h4>
+              ${option.status ? `<span class="share-option-status ${option.statusClass}">${option.status}</span>` : ""}
+            </div>
+            <p class="share-option-description">${option.description}</p>
+            ${
+              option.type === "share" && option.payload.length > 200
+                ? `
+              <div class="encoded-text-preview">${option.payload.substring(0, 100)}${
+                    option.payload.length > 100 ? "..." : ""
+                  }</div>
+            `
+                : ""
+            }
+            <div class="share-option-actions">
+              ${
+                option.type === "share"
+                  ? `
+                <button class="share-btn-small primary" onclick="copyToClipboardAndClose('${option.payload.replace(
+                  /'/g,
+                  "\\'"
+                )}')">Copy & Share</button>
+              `
+                  : ""
+              }
+              ${
+                option.type === "file"
+                  ? `
+                <button class="share-btn-small primary" onclick="downloadFile()">Download</button>
+              `
+                  : ""
+              }
+            </div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      async function copyToClipboard(text, successMessage) {
+        try {
+          await navigator.clipboard.writeText(text);
+          // Show brief success feedback
+          const originalContent = event.target.textContent;
+          event.target.textContent = "Copied!";
+          event.target.style.background = "#28a745";
+          setTimeout(() => {
+            event.target.textContent = originalContent;
+            event.target.style.background = "";
+          }, 1500);
+        } catch (e) {
+          // Fallback for older browsers
+          const textArea = document.createElement("textarea");
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textArea);
+          alert(successMessage);
+        }
+      }
+
+      async function copyToClipboardAndClose(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          // Show brief success feedback
+          const originalContent = event.target.textContent;
+          event.target.textContent = "Copied!";
+          event.target.style.background = "#28a745";
+          setTimeout(() => {
+            hideShareModal();
+          }, 800);
+        } catch (e) {
+          // Fallback for older browsers
+          const textArea = document.createElement("textarea");
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textArea);
+          hideShareModal();
+        }
+      }
+
+      function downloadFile() {
+        const blob = new Blob([currentMd], { type: "text/markdown" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = loadedFilename.endsWith(".md") ? loadedFilename : "document.md";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      }
+
+      // Theme functionality
+      function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+        document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+
+        // Update the theme icon
+        const themeIcon = themeToggle.querySelector(".theme-icon");
+        themeIcon.textContent = newTheme === "dark" ? "🌙" : "☀️";
+        themeToggle.title = newTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+      }
+
+      function initializeTheme() {
+        // Check for saved theme preference or default to 'light'
+        const savedTheme = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+
+        // Update the theme icon
+        const themeIcon = themeToggle.querySelector(".theme-icon");
+        themeIcon.textContent = savedTheme === "dark" ? "🌙" : "☀️";
+        themeToggle.title = savedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+      }
+
+      // =================== Event Listeners ===================
+      textarea.addEventListener("input", function () {
+        currentMd = this.value;
+        renderAll();
+      });
+
+      // Layout switching
+      navButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          setLayout(btn.dataset.layout);
+        });
+      });
+
+      // New button functionality
+      importBtn.addEventListener("click", () => {
+        showModal();
+      });
+
+      clearBtn.addEventListener("click", () => {
+        if (confirm("Are you sure you want to clear all content? This cannot be undone.")) {
+          loadedFilename = "document.md";
+          currentMd = "";
+          textarea.value = currentMd;
+          renderAll();
+        }
+      });
+
+      // Modal event listeners
+      modalClose.addEventListener("click", hideModal);
+      cancelImportBtn.addEventListener("click", hideModal);
+      cancelFileBtn.addEventListener("click", hideModal);
+
+      // Share modal event listeners
+      shareModalClose.addEventListener("click", hideShareModal);
+
+      // Close modal on overlay click
+      importModal.addEventListener("click", (e) => {
+        if (e.target === importModal) {
+          hideModal();
+        }
+      });
+
+      shareModal.addEventListener("click", (e) => {
+        if (e.target === shareModal) {
+          hideShareModal();
+        }
+      });
+
+      // Tab switching
+      modalTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          setActiveTab(tab.dataset.tab);
+        });
+      });
+
+      // Paste import functionality
+      importPasteBtn.addEventListener("click", async () => {
+        const content = importTextarea.value.trim();
+        if (!content) return;
+
+        try {
+          const decodedContent = await tryDecodeContent(content);
+          currentMd = decodedContent;
+          textarea.value = currentMd;
+          renderAll();
+          hideModal();
+        } catch (e) {
+          console.error("Failed to decode content:", e);
+          alert("Failed to decode the pasted content. Please check the format and try again.");
+        }
+      });
+
+      // File drop zone functionality
+      fileDropZone.addEventListener("click", () => {
+        modalFileInput.click();
+      });
+
+      fileDropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        fileDropZone.classList.add("drag-over");
+      });
+
+      fileDropZone.addEventListener("dragleave", () => {
+        fileDropZone.classList.remove("drag-over");
+      });
+
+      fileDropZone.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        fileDropZone.classList.remove("drag-over");
+
+        const files = Array.from(e.dataTransfer.files);
+        const file = files.find((f) => f.name.endsWith(".md") || f.name.endsWith(".txt"));
+
+        if (file) {
+          loadedFilename = file.name;
+          const text = await file.text();
+          currentMd = text;
+          textarea.value = currentMd;
+          renderAll();
+          hideModal();
+        }
+      });
+
+      modalFileInput.addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) {
+          importFileBtn.disabled = true;
+          return;
+        }
+        importFileBtn.disabled = false;
+      });
+
+      importFileBtn.addEventListener("click", async () => {
+        const file = modalFileInput.files?.[0];
+        if (!file) return;
+
+        loadedFilename = file.name;
+        const text = await file.text();
+        currentMd = text;
+        textarea.value = currentMd;
+        renderAll();
+        hideModal();
+      });
+
+      // Share functionality
+      shareBtn.addEventListener("click", () => {
+        showShareModal();
+      });
+
+      // Theme toggle functionality
+      themeToggle.addEventListener("click", toggleTheme);
+
+      // Keyboard support
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          if (shareModal.classList.contains("active")) {
+            hideShareModal();
+          } else if (importModal.classList.contains("active")) {
+            hideModal();
+          }
+        }
+      });
+
+      // Button animations
+      document.querySelectorAll(".btn, .nav-btn").forEach((btn) => {
+        btn.addEventListener("mousedown", function () {
+          this.style.transform = "scale(0.98)";
+        });
+
+        btn.addEventListener("mouseup", function () {
+          this.style.transform = "scale(1)";
+        });
+      });
+
+      // Load README.md dynamically
+      async function loadReadme() {
+        try {
+          const response = await fetch("./README.md");
+          if (response.ok) {
+            const readmeContent = await response.text();
+            currentMd = readmeContent;
+            textarea.value = currentMd;
+            renderAll();
+          }
+        } catch (error) {
+          console.warn("Could not load README.md, using fallback content");
+        }
+      }
+
+      // Calculate project size
+      async function calculateProjectSize() {
+        const projectSizeEl = document.getElementById("project-size");
+        const files = ["./index.html", "./sw.js", "./manifest.json", "./browserconfig.xml", "./README.md"];
+
+        let totalSize = 0;
+        let loadedFiles = 0;
+
+        for (const file of files) {
+          try {
+            const response = await fetch(file, { method: "HEAD" });
+            if (response.ok) {
+              const size = response.headers.get("content-length");
+              if (size) {
+                totalSize += parseInt(size);
+              }
+            }
+            loadedFiles++;
+          } catch (error) {
+            console.warn(`Could not get size for ${file}`);
+            loadedFiles++;
+          }
+        }
+
+        // Format size in human readable format
+        const formatSize = (bytes) => {
+          if (bytes === 0) return "0B";
+          const k = 1024;
+          const sizes = ["B", "KB", "MB"];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + sizes[i];
+        };
+
+        if (totalSize > 0) {
+          projectSizeEl.textContent = `Project Size: ${formatSize(totalSize)}`;
+          projectSizeEl.title = `Total project size: ${totalSize.toLocaleString()} bytes across ${files.length} files`;
+        } else {
+          projectSizeEl.textContent = "Project Size: ~85KB";
+          projectSizeEl.title = "Estimated project size";
+        }
+      }
+
+      // =================== Initialize ===================
+      textarea.value = currentMd;
+      renderAll();
+
+      // Load README content
+      loadReadme();
+
+      // Calculate and display project size
+      calculateProjectSize();
+
+      // Initialize theme
+      initializeTheme();
+
+      // Initialize and start the clock
+      updateDateTime();
+      setInterval(updateDateTime, 1000);
+
+      // Register service worker for PWA functionality
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then((registration) => {
+              console.log("SūperLight: Service worker registered successfully:", registration.scope);
+            })
+            .catch((error) => {
+              console.log("SūperLight: Service worker registration failed:", error);
+            });
+        });
+      }
+
+      // Load from hash if present
+      (async function initFromHash() {
+        const h = location.hash.slice(1);
+        if (!h || !h.startsWith("MDLITE:")) return;
+
+        try {
+          const decodedContent = await tryDecodeContent(h);
+          if (decodedContent && decodedContent !== h) {
+            currentMd = decodedContent;
+            textarea.value = currentMd;
+            renderAll();
+            setLayout("preview");
+          }
+          history.replaceState(null, "", location.pathname + location.search);
+        } catch (e) {
+          console.warn("Failed to parse shared payload", e);
+        }
+      })();
+    </script>
+  </body>
+</html>
