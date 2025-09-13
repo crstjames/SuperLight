@@ -152,3 +152,11 @@ self.addEventListener("sync", (event) => {
 self.addEventListener("push", (event) => {
   console.log("SūperLight: Push notification received");
 });
+
+// Handle messages from client for clean shutdown
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "CLIENT_CLOSING") {
+    console.log("SūperLight: Client closing, preparing for clean shutdown");
+    // Perform any cleanup if needed
+  }
+});

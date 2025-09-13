@@ -312,6 +312,45 @@
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), inset 0 1px 3px rgba(0, 0, 0, 0.1);
       }
 
+      /* Clear confirmation styling */
+      .clear-group {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .clear-confirm {
+        position: absolute;
+        left: 100%;
+        top: 0;
+        display: flex;
+        gap: 4px;
+        margin-left: 8px;
+        opacity: 0;
+        transform: translateX(-20px);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      .clear-confirm.active {
+        opacity: 1;
+        transform: translateX(0);
+        pointer-events: auto;
+      }
+
+      .clear-yes {
+        background: linear-gradient(145deg, #ff6b35, #e55a2b) !important;
+        border-color: #d44a1f !important;
+        color: #fff !important;
+      }
+
+      .clear-no {
+        background: linear-gradient(145deg, #f8f8f8, #f0f0f0) !important;
+        border-color: #d8d8d8 !important;
+        color: #555 !important;
+      }
+
       .char-count {
         font-size: 10px;
         color: #666;
@@ -616,8 +655,16 @@
         display: none;
       }
 
-      .container[data-layout="preview"] .editor-panel {
+      .container[data-layout="code"] .editor-wrapper {
+        flex: 1;
+      }
+
+      .container[data-layout="preview"] .editor-wrapper {
         display: none;
+      }
+
+      .container[data-layout="preview"] .preview-panel {
+        flex: 1;
       }
 
       /* Clean scrollbar styling */
@@ -1506,7 +1553,13 @@
       <div class="toolbar">
         <div class="toolbar-left">
           <button class="btn" id="import-btn">Import</button>
-          <button class="btn" id="clear-btn">Clear</button>
+          <div class="clear-group">
+            <button class="btn" id="clear-btn">Clear</button>
+            <div class="clear-confirm" id="clear-confirm">
+              <button class="btn clear-yes" id="clear-yes">Yes</button>
+              <button class="btn clear-no" id="clear-no">No</button>
+            </div>
+          </div>
         </div>
         <div class="toolbar-right">
           <button class="btn" id="share-btn">Share</button>
@@ -2283,12 +2336,31 @@ _Loading README..._`;
         showModal();
       });
 
+      // Clear button functionality with inline confirmation
+      const clearConfirm = document.getElementById("clear-confirm");
+      const clearYes = document.getElementById("clear-yes");
+      const clearNo = document.getElementById("clear-no");
+
       clearBtn.addEventListener("click", () => {
-        if (confirm("Are you sure you want to clear all content? This cannot be undone.")) {
-          loadedFilename = "document.md";
-          currentMd = "";
-          textarea.value = currentMd;
-          renderAll();
+        clearConfirm.classList.add("active");
+      });
+
+      clearYes.addEventListener("click", () => {
+        loadedFilename = "document.md";
+        currentMd = "";
+        textarea.value = currentMd;
+        renderAll();
+        clearConfirm.classList.remove("active");
+      });
+
+      clearNo.addEventListener("click", () => {
+        clearConfirm.classList.remove("active");
+      });
+
+      // Hide confirmation when clicking elsewhere
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".clear-group")) {
+          clearConfirm.classList.remove("active");
         }
       });
 
@@ -2491,7 +2563,36 @@ _Loading README..._`;
 
       // Initialize and start the clock
       updateDateTime();
-      setInterval(updateDateTime, 1000);
+      const clockInterval = setInterval(updateDateTime, 1000);
+
+      // Clean up intervals when PWA is closing
+      window.addEventListener("beforeunload", () => {
+        clearInterval(clockInterval);
+      });
+
+      // Handle PWA lifecycle for clean shutdown
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("beforeunload", () => {
+          navigator.serviceWorker.ready.then((registration) => {
+            // Clean shutdown - let service worker know we're closing
+            if (registration.active) {
+              registration.active.postMessage({ type: "CLIENT_CLOSING" });
+            }
+          });
+        });
+
+        // Handle visibility changes for PWA lifecycle
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "hidden") {
+            // App is being hidden/minimized - prepare for potential close
+            navigator.serviceWorker.ready.then((registration) => {
+              if (registration.active) {
+                registration.active.postMessage({ type: "CLIENT_HIDDEN" });
+              }
+            });
+          }
+        });
+      }
 
       // Register service worker for PWA functionality
       if ("serviceWorker" in navigator) {
