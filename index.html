@@ -2673,88 +2673,45 @@ _Loading README..._`;
       updateDateTime();
       const clockInterval = setInterval(updateDateTime, 1000);
 
-      // PWA Lifecycle Management - Enhanced shutdown handling
+      // PWA Lifecycle Management - Simplified and reliable
       let isShuttingDown = false;
-      let shutdownTimer = null;
 
       function performCleanShutdown() {
         if (isShuttingDown) return;
         isShuttingDown = true;
 
-        // Clear any existing shutdown timer
-        if (shutdownTimer) {
-          clearTimeout(shutdownTimer);
-          shutdownTimer = null;
-        }
+        try {
+          // Clear intervals immediately
+          clearInterval(clockInterval);
 
-        // Clear intervals immediately
-        clearInterval(clockInterval);
-
-        // Signal service worker with immediate cleanup
-        if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
-          try {
+          // Signal service worker
+          if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
             navigator.serviceWorker.controller.postMessage({
               type: "CLIENT_CLOSING",
               timestamp: Date.now(),
-              immediate: true,
             });
-          } catch (e) {
-            console.log("SūperLight: SW message failed (expected during shutdown)");
-          }
-        }
-
-        // Force immediate DOM cleanup
-        try {
-          // Remove all event listeners that might prevent shutdown
-          window.removeEventListener("beforeunload", performCleanShutdown);
-          window.removeEventListener("unload", performCleanShutdown);
-          window.removeEventListener("pagehide", performCleanShutdown);
-
-          // Clear any pending animations or timeouts
-          if (window.requestAnimationFrame) {
-            let id = window.requestAnimationFrame(() => {});
-            window.cancelAnimationFrame(id);
           }
 
           // Force garbage collection if available
           if (window.gc) {
             window.gc();
           }
-
-          // Signal the system we're ready to close
-          if (window.close) {
-            // This might work in PWA context
-            setTimeout(() => window.close(), 50);
-          }
         } catch (e) {
-          console.log("SūperLight: Cleanup completed with minor errors (expected)");
+          console.log("SūperLight: Cleanup completed");
         }
-      }
-
-      // Enhanced shutdown detection with timeout
-      function initiateShutdown() {
-        if (isShuttingDown) return;
-
-        // Set a timeout to force shutdown if normal cleanup takes too long
-        shutdownTimer = setTimeout(() => {
-          console.log("SūperLight: Force closing after timeout");
-          performCleanShutdown();
-        }, 1000);
-
-        performCleanShutdown();
       }
 
       // Method 1: beforeunload (may be blocked in PWA)
       window.addEventListener("beforeunload", (e) => {
-        initiateShutdown();
+        performCleanShutdown();
         // Don't prevent default - let the close happen
       });
 
       // Method 2: unload (more reliable for cleanup)
-      window.addEventListener("unload", initiateShutdown);
+      window.addEventListener("unload", performCleanShutdown);
 
       // Method 3: pagehide (most reliable for PWAs)
-      window.addEventListener("pagehide", initiateShutdown);
+      window.addEventListener("pagehide", performCleanShutdown);
 
       // Method 4: visibility change (for PWA minimize/hide)
       document.addEventListener("visibilitychange", () => {
