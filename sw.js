@@ -1,5 +1,5 @@
 // SūperLight Service Worker
-const CACHE_NAME = "superlight-v1.0.3";
+const CACHE_NAME = "superlight-v1.0.4";
 const STATIC_CACHE_URLS = ["./index.html", "./manifest.json", "./README.md"];
 
 // Install event - cache static assets
@@ -156,10 +156,10 @@ self.addEventListener("push", (event) => {
 // Handle messages from client for clean shutdown
 self.addEventListener("message", (event) => {
   if (event.data && event.data.type === "CLIENT_CLOSING") {
-    console.log("SūperLight: Client closing, performing immediate cleanup");
+    const immediate = event.data.immediate;
+    console.log(`SūperLight: Client closing${immediate ? " (immediate)" : ""}, performing cleanup`);
 
     // Immediately clear any pending operations
-    // This helps prevent the PWA from hanging during shutdown
     try {
       // Cancel any pending cache operations
       if (self.pendingCacheOperations) {
@@ -171,10 +171,31 @@ self.addEventListener("message", (event) => {
         self.pendingCacheOperations = [];
       }
 
-      // Force immediate cleanup - don't wait for async operations
-      setTimeout(() => {
-        console.log("SūperLight: Forced cleanup complete");
-      }, 0);
+      // Clear any pending fetch operations
+      if (self.pendingFetches) {
+        self.pendingFetches.forEach((controller) => {
+          if (controller && typeof controller.abort === "function") {
+            controller.abort();
+          }
+        });
+        self.pendingFetches = [];
+      }
+
+      // If immediate shutdown requested, don't wait
+      if (immediate) {
+        console.log("SūperLight: Immediate cleanup complete - ready for shutdown");
+        // Signal readiness for shutdown
+        try {
+          self.skipWaiting();
+        } catch (e) {
+          // Expected in some contexts
+        }
+      } else {
+        // Normal cleanup with small delay
+        setTimeout(() => {
+          console.log("SūperLight: Normal cleanup complete");
+        }, 100);
+      }
     } catch (error) {
       console.log("SūperLight: Cleanup error (expected during shutdown):", error.message);
     }

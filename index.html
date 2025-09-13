@@ -2293,6 +2293,28 @@ _Loading README..._`;
         setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       }
 
+      // Shortcuts help function
+      function showShortcutsHelp() {
+        const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+        const cmdKey = isMac ? "⌘" : "Ctrl";
+
+        const shortcuts = [
+          `${cmdKey} + S - Save/Download file`,
+          `${cmdKey} + O - Open/Import file`,
+          `${cmdKey} + N - New document (clear)`,
+          `${cmdKey} + Shift + S - Share document`,
+          `${cmdKey} + D - Toggle dark mode`,
+          `${cmdKey} + 1 - Code view`,
+          `${cmdKey} + 2 - Split view`,
+          `${cmdKey} + 3 - Preview view`,
+          `${cmdKey} + / - Show this help`,
+          `Tab - Insert 2 spaces (in editor)`,
+          `Esc - Close modals`,
+        ];
+
+        alert(`SūperLight Keyboard Shortcuts:\n\n${shortcuts.join("\n")}`);
+      }
+
       // Theme functionality
       function toggleTheme() {
         const currentTheme = document.documentElement.getAttribute("data-theme");
@@ -2469,14 +2491,100 @@ _Loading README..._`;
       // Theme toggle functionality
       themeToggle.addEventListener("click", toggleTheme);
 
-      // Keyboard support
+      // Enhanced keyboard shortcuts support
       document.addEventListener("keydown", (e) => {
+        const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+        const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+
+        // Escape key - close modals
         if (e.key === "Escape") {
           if (shareModal.classList.contains("active")) {
             hideShareModal();
+            e.preventDefault();
           } else if (importModal.classList.contains("active")) {
             hideModal();
+            e.preventDefault();
           }
+          return;
+        }
+
+        // Cmd/Ctrl + S - Download/Save file
+        if (cmdOrCtrl && e.key.toLowerCase() === "s") {
+          e.preventDefault();
+          downloadFile();
+
+          // Show brief feedback
+          const originalTitle = document.title;
+          document.title = "✓ Saved - SūperLight";
+          setTimeout(() => {
+            document.title = originalTitle;
+          }, 1500);
+          return;
+        }
+
+        // Cmd/Ctrl + O - Open/Import
+        if (cmdOrCtrl && e.key.toLowerCase() === "o") {
+          e.preventDefault();
+          showModal();
+          return;
+        }
+
+        // Cmd/Ctrl + N - New/Clear document
+        if (cmdOrCtrl && e.key.toLowerCase() === "n") {
+          e.preventDefault();
+          // Trigger clear confirmation
+          const clearConfirm = document.getElementById("clear-confirm");
+          clearConfirm.classList.add("active");
+          return;
+        }
+
+        // Cmd/Ctrl + Shift + S - Share
+        if (cmdOrCtrl && e.shiftKey && e.key.toLowerCase() === "s") {
+          e.preventDefault();
+          showShareModal();
+          return;
+        }
+
+        // Cmd/Ctrl + D - Toggle dark mode
+        if (cmdOrCtrl && e.key.toLowerCase() === "d") {
+          e.preventDefault();
+          toggleTheme();
+          return;
+        }
+
+        // Cmd/Ctrl + 1, 2, 3 - Switch layouts
+        if (cmdOrCtrl && ["1", "2", "3"].includes(e.key)) {
+          e.preventDefault();
+          const layouts = ["code", "split", "preview"];
+          const layoutIndex = parseInt(e.key) - 1;
+          if (layouts[layoutIndex]) {
+            setLayout(layouts[layoutIndex]);
+          }
+          return;
+        }
+
+        // Cmd/Ctrl + / - Show shortcuts help
+        if (cmdOrCtrl && e.key === "/") {
+          e.preventDefault();
+          showShortcutsHelp();
+          return;
+        }
+
+        // Tab in textarea - insert 2 spaces instead of losing focus
+        if (e.key === "Tab" && e.target === textarea) {
+          e.preventDefault();
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+
+          // Insert 2 spaces
+          const newValue = textarea.value.substring(0, start) + "  " + textarea.value.substring(end);
+          textarea.value = newValue;
+          textarea.selectionStart = textarea.selectionEnd = start + 2;
+
+          // Trigger update
+          currentMd = textarea.value;
+          renderAll();
+          return;
         }
       });
 
@@ -2565,47 +2673,88 @@ _Loading README..._`;
       updateDateTime();
       const clockInterval = setInterval(updateDateTime, 1000);
 
-      // PWA Lifecycle Management - Multiple approaches for reliable shutdown
+      // PWA Lifecycle Management - Enhanced shutdown handling
       let isShuttingDown = false;
+      let shutdownTimer = null;
 
       function performCleanShutdown() {
         if (isShuttingDown) return;
         isShuttingDown = true;
 
+        // Clear any existing shutdown timer
+        if (shutdownTimer) {
+          clearTimeout(shutdownTimer);
+          shutdownTimer = null;
+        }
+
         // Clear intervals immediately
         clearInterval(clockInterval);
 
-        // Signal service worker synchronously if possible
+        // Signal service worker with immediate cleanup
         if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
           try {
             navigator.serviceWorker.controller.postMessage({
               type: "CLIENT_CLOSING",
               timestamp: Date.now(),
+              immediate: true,
             });
           } catch (e) {
             console.log("SūperLight: SW message failed (expected during shutdown)");
           }
         }
 
-        // Force garbage collection if available (helps with memory cleanup)
-        if (window.gc) {
-          try {
+        // Force immediate DOM cleanup
+        try {
+          // Remove all event listeners that might prevent shutdown
+          window.removeEventListener("beforeunload", performCleanShutdown);
+          window.removeEventListener("unload", performCleanShutdown);
+          window.removeEventListener("pagehide", performCleanShutdown);
+
+          // Clear any pending animations or timeouts
+          if (window.requestAnimationFrame) {
+            let id = window.requestAnimationFrame(() => {});
+            window.cancelAnimationFrame(id);
+          }
+
+          // Force garbage collection if available
+          if (window.gc) {
             window.gc();
-          } catch (e) {}
+          }
+
+          // Signal the system we're ready to close
+          if (window.close) {
+            // This might work in PWA context
+            setTimeout(() => window.close(), 50);
+          }
+        } catch (e) {
+          console.log("SūperLight: Cleanup completed with minor errors (expected)");
         }
+      }
+
+      // Enhanced shutdown detection with timeout
+      function initiateShutdown() {
+        if (isShuttingDown) return;
+
+        // Set a timeout to force shutdown if normal cleanup takes too long
+        shutdownTimer = setTimeout(() => {
+          console.log("SūperLight: Force closing after timeout");
+          performCleanShutdown();
+        }, 1000);
+
+        performCleanShutdown();
       }
 
       // Method 1: beforeunload (may be blocked in PWA)
       window.addEventListener("beforeunload", (e) => {
-        performCleanShutdown();
+        initiateShutdown();
         // Don't prevent default - let the close happen
       });
 
       // Method 2: unload (more reliable for cleanup)
-      window.addEventListener("unload", performCleanShutdown);
+      window.addEventListener("unload", initiateShutdown);
 
       // Method 3: pagehide (most reliable for PWAs)
-      window.addEventListener("pagehide", performCleanShutdown);
+      window.addEventListener("pagehide", initiateShutdown);
 
       // Method 4: visibility change (for PWA minimize/hide)
       document.addEventListener("visibilitychange", () => {
