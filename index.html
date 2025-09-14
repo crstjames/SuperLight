@@ -180,7 +180,7 @@
 
       .nav-btn.active {
         background: #333;
-        border-color: #222;
+        border: 2px solid #ff6b35;
         color: #fff;
         box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
       }
@@ -687,8 +687,16 @@
 
       /* Focus states for accessibility */
       .btn:focus,
-      .nav-btn:focus,
       .file-input label:focus {
+        outline: 2px solid #ff6b35;
+        outline-offset: 2px;
+      }
+
+      .nav-btn:focus {
+        outline: none;
+      }
+
+      .nav-btn:focus:not(.active) {
         outline: 2px solid #ff6b35;
         outline-offset: 2px;
       }
@@ -1142,8 +1150,9 @@
 
       [data-theme="dark"] .nav-btn.active {
         background: #e0e0e0;
-        border-color: #ccc;
+        border: 2px solid #ff6b35;
         color: #222;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
       }
 
       [data-theme="dark"] .nav-btn.active:hover {
@@ -1468,12 +1477,133 @@
         background: #555;
       }
 
+      /* Mobile Tab System */
+      .mobile-tabs {
+        display: none;
+        background: linear-gradient(180deg, #f0f0f0 0%, #e8e8e8 100%);
+        border-bottom: 1px solid #d0d0d0;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      }
+
+      .mobile-tab-bar {
+        display: flex;
+        width: 100%;
+        position: relative;
+      }
+
+      .mobile-tab {
+        flex: 1;
+        padding: 12px 16px;
+        background: none;
+        border: none;
+        color: #666;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-family: inherit;
+        position: relative;
+        z-index: 2;
+      }
+
+      .mobile-tab.active {
+        color: #333;
+        font-weight: 600;
+      }
+
+      .mobile-tab-indicator {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: #ff6b35;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 2px 2px 0 0;
+        z-index: 1;
+      }
+
+      .mobile-content {
+        display: none;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .mobile-content-wrapper {
+        display: flex;
+        width: 300%;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+      }
+
+      .mobile-content-panel {
+        width: 33.333%;
+        flex-shrink: 0;
+        height: 100%;
+      }
+
+      /* Dark mode mobile tabs */
+      [data-theme="dark"] .mobile-tabs {
+        background: linear-gradient(180deg, #2a2a2a 0%, #222 100%);
+        border-bottom: 1px solid #333;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+
+      [data-theme="dark"] .mobile-tab {
+        color: #ccc;
+      }
+
+      [data-theme="dark"] .mobile-tab.active {
+        color: #fff;
+      }
+
       /* Mobile responsive */
       @media (max-width: 980px) {
+        /* Hide desktop nav buttons on mobile */
+        .nav-buttons {
+          display: none;
+        }
+
+        /* Show mobile tabs */
+        .mobile-tabs {
+          display: block;
+        }
+
+        /* Use mobile content system */
         .editor-container {
+          display: none;
+        }
+
+        .mobile-content {
+          display: block;
+          height: calc(100vh - 220px);
+        }
+
+        .mobile-content-panel {
+          display: flex;
           flex-direction: column;
-          height: auto;
-          min-height: calc(100vh - 162px);
+        }
+
+        .mobile-content-panel .editor-wrapper {
+          flex: 1;
+          border-right: none;
+          padding: 0;
+        }
+
+        .mobile-content-panel .editor-panel {
+          height: 100%;
+          border: none;
+          border-radius: 0;
+        }
+
+        .mobile-content-panel .preview-panel {
+          flex: 1;
+          border: none;
+          border-left: none;
+          border-radius: 0;
+          height: 100%;
+          overflow-y: auto;
         }
 
         .stats {
@@ -1490,39 +1620,87 @@
           font-size: 9px;
         }
 
-        .editor-panel {
-          flex: none;
-          border-right: none;
-          border-bottom: 1px solid #d0d0d0;
-          min-height: 300px;
-        }
-
-        .preview-panel {
-          border-left: none;
-          border-top: 1px solid #d0d0d0;
-        }
-
         .toolbar {
-          flex-direction: column;
-          gap: 16px;
-          align-items: stretch;
+          flex-direction: row;
+          gap: 8px;
+          align-items: center;
+          justify-content: center;
+          padding: 8px 16px;
+          flex-wrap: wrap;
         }
 
         .toolbar-left,
         .toolbar-right {
           justify-content: center;
-          flex-wrap: wrap;
-          gap: 8px;
+          flex-wrap: nowrap;
+          gap: 6px;
         }
 
-        .nav-buttons {
-          flex-wrap: wrap;
+        .toolbar-left {
+          order: 1;
+        }
+
+        .toolbar-right {
+          order: 2;
         }
 
         .header {
           flex-direction: column;
-          gap: 16px;
+          gap: 12px;
           text-align: center;
+          padding: 8px 16px;
+        }
+
+        .logo h1 {
+          font-size: 14px;
+        }
+
+        .tagline {
+          font-size: 8px;
+        }
+      }
+
+      /* Touch-friendly improvements for mobile */
+      @media (max-width: 980px) and (pointer: coarse) {
+        .mobile-tab {
+          padding: 16px;
+          font-size: 14px;
+        }
+
+        .btn {
+          padding: 10px 12px;
+          font-size: 11px;
+          min-height: 40px;
+        }
+
+        .theme-toggle {
+          width: 40px;
+          height: 40px;
+        }
+      }
+
+      /* Compact mobile buttons for smaller screens */
+      @media (max-width: 980px) {
+        .btn {
+          padding: 8px 12px;
+          font-size: 10px;
+          letter-spacing: 0.6px;
+        }
+
+        .clear-group {
+          display: flex;
+          align-items: center;
+        }
+
+        .clear-confirm {
+          position: relative;
+          left: 0;
+          margin-left: 8px;
+        }
+
+        .clear-confirm .btn {
+          padding: 6px 10px;
+          font-size: 9px;
         }
       }
     </style>
@@ -1543,12 +1721,21 @@
             <span class="theme-icon">☀️</span>
           </button>
           <nav class="nav-buttons">
-            <button class="nav-btn" data-layout="code">Code</button>
+            <button class="nav-btn" data-layout="code">Markdown</button>
             <button class="nav-btn active" data-layout="split">Split</button>
             <button class="nav-btn" data-layout="preview">Preview</button>
           </nav>
         </div>
       </header>
+
+      <!-- Mobile Tab System -->
+      <div class="mobile-tabs">
+        <div class="mobile-tab-bar">
+          <button class="mobile-tab active" data-tab="code">Markdown</button>
+          <button class="mobile-tab" data-tab="preview">Preview</button>
+          <div class="mobile-tab-indicator"></div>
+        </div>
+      </div>
 
       <div class="toolbar">
         <div class="toolbar-left">
@@ -1574,6 +1761,26 @@
         </div>
         <div class="preview-panel">
           <p style="color: #999; font-style: italic">Preview will appear here...</p>
+        </div>
+      </div>
+
+      <!-- Mobile Content System -->
+      <div class="mobile-content">
+        <div class="mobile-content-wrapper">
+          <!-- Markdown Panel -->
+          <div class="mobile-content-panel">
+            <div class="editor-wrapper">
+              <div class="editor-panel">
+                <textarea class="editor-textarea" placeholder="# Start typing..."></textarea>
+              </div>
+            </div>
+          </div>
+          <!-- Preview Panel -->
+          <div class="mobile-content-panel">
+            <div class="preview-panel">
+              <p style="color: #999; font-style: italic">Preview will appear here...</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1989,6 +2196,14 @@ _Loading README..._`;
       const preview = document.querySelector(".preview-panel");
       const navButtons = document.querySelectorAll(".nav-btn");
 
+      // Mobile elements
+      const mobileContent = document.querySelector(".mobile-content");
+      const mobileContentWrapper = document.querySelector(".mobile-content-wrapper");
+      const mobileTabs = document.querySelectorAll(".mobile-tab");
+      const mobileTabIndicator = document.querySelector(".mobile-tab-indicator");
+      const mobileTextarea = document.querySelector(".mobile-content .editor-textarea");
+      const mobilePreview = document.querySelector(".mobile-content .preview-panel");
+
       // Footer elements
       const charCountEl = document.getElementById("char-count");
       const wordCountEl = document.getElementById("word-count");
@@ -2019,7 +2234,25 @@ _Loading README..._`;
       // =================== Functions ===================
       function renderAll() {
         const visible = stripHistory(currentMd);
-        preview.innerHTML = mdToHtml(visible);
+
+        // Debug: Check if preview element exists
+        if (!preview) {
+          console.error("Preview panel not found!");
+          return;
+        }
+
+        const htmlContent = mdToHtml(visible);
+        preview.innerHTML = htmlContent;
+
+        // Always sync mobile elements regardless of current tab
+        if (mobilePreview) {
+          mobilePreview.innerHTML = htmlContent;
+        }
+
+        if (mobileTextarea && textarea) {
+          mobileTextarea.value = textarea.value;
+        }
+
         updateStats();
       }
 
@@ -2032,23 +2265,6 @@ _Loading README..._`;
         charCountEl.textContent = `Chars: ${chars}`;
         wordCountEl.textContent = `Words: ${words}`;
         lineCountEl.textContent = `Lines: ${lines}`;
-      }
-
-      function updateDateTime() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString("en-US", {
-          hour12: false,
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        });
-        const dateString = now.toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        });
-        datetimeEl.textContent = `${dateString} ${timeString}`;
       }
 
       function setLayout(layout) {
@@ -2304,7 +2520,7 @@ _Loading README..._`;
           `${cmdKey} + N - New document (clear)`,
           `${cmdKey} + Shift + S - Share document`,
           `${cmdKey} + D - Toggle dark mode`,
-          `${cmdKey} + 1 - Code view`,
+          `${cmdKey} + 1 - Markdown view`,
           `${cmdKey} + 2 - Split view`,
           `${cmdKey} + 3 - Preview view`,
           `${cmdKey} + / - Show this help`,
@@ -2340,10 +2556,148 @@ _Loading README..._`;
         themeToggle.title = savedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode";
       }
 
+      // =================== Mobile Tab System ===================
+      let currentMobileTab = "code";
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let isSwiping = false;
+
+      function updateMobileTab(tabName) {
+        currentMobileTab = tabName;
+
+        // Update tab indicators
+        mobileTabs.forEach((tab) => {
+          tab.classList.toggle("active", tab.dataset.tab === tabName);
+        });
+
+        // Update tab indicator position
+        const activeTab = document.querySelector(`.mobile-tab[data-tab="${tabName}"]`);
+        if (activeTab && mobileTabIndicator) {
+          const tabRect = activeTab.getBoundingClientRect();
+          const containerRect = activeTab.parentElement.getBoundingClientRect();
+          const left = tabRect.left - containerRect.left;
+          const width = tabRect.width;
+
+          mobileTabIndicator.style.left = `${left}px`;
+          mobileTabIndicator.style.width = `${width}px`;
+        }
+
+        // Update content position
+        const translateX = tabName === "code" ? "0%" : "-33.333%";
+        if (mobileContentWrapper) {
+          mobileContentWrapper.style.transform = `translateX(${translateX})`;
+        }
+
+        // Always sync content between desktop and mobile
+        if (tabName === "code") {
+          // Switching to markdown tab - sync textarea
+          if (mobileTextarea && textarea) {
+            mobileTextarea.value = textarea.value;
+            // Focus after a short delay to ensure the tab transition is complete
+            setTimeout(() => mobileTextarea.focus(), 300);
+          }
+        } else if (tabName === "preview") {
+          // Switching to preview tab - ensure preview is up to date
+          if (mobilePreview) {
+            // Force a re-render to make sure mobile preview has latest content
+            const htmlContent = mdToHtml(stripHistory(currentMd));
+            mobilePreview.innerHTML = htmlContent;
+          }
+        }
+      }
+
+      function initializeMobileTabs() {
+        // Set initial tab indicator position
+        setTimeout(() => {
+          updateMobileTab("code");
+        }, 100);
+
+        // Mobile tab click handlers
+        mobileTabs.forEach((tab) => {
+          tab.addEventListener("click", () => {
+            updateMobileTab(tab.dataset.tab);
+          });
+        });
+
+        // Touch/swipe handlers for mobile content
+        if (mobileContent) {
+          mobileContent.addEventListener(
+            "touchstart",
+            (e) => {
+              touchStartX = e.touches[0].clientX;
+              touchStartY = e.touches[0].clientY;
+              isSwiping = false;
+            },
+            { passive: true }
+          );
+
+          mobileContent.addEventListener(
+            "touchmove",
+            (e) => {
+              if (!touchStartX) return;
+
+              const touchX = e.touches[0].clientX;
+              const touchY = e.touches[0].clientY;
+              const deltaX = touchStartX - touchX;
+              const deltaY = touchStartY - touchY;
+
+              // Determine if this is a horizontal swipe
+              if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+                isSwiping = true;
+                e.preventDefault(); // Prevent scrolling while swiping
+              }
+            },
+            { passive: false }
+          );
+
+          mobileContent.addEventListener(
+            "touchend",
+            (e) => {
+              if (!touchStartX || !isSwiping) {
+                touchStartX = 0;
+                touchStartY = 0;
+                isSwiping = false;
+                return;
+              }
+
+              const touchEndX = e.changedTouches[0].clientX;
+              const deltaX = touchStartX - touchEndX;
+              const threshold = 50; // Minimum swipe distance
+
+              if (Math.abs(deltaX) > threshold) {
+                if (deltaX > 0 && currentMobileTab === "code") {
+                  // Swipe left: Markdown -> Preview
+                  updateMobileTab("preview");
+                } else if (deltaX < 0 && currentMobileTab === "preview") {
+                  // Swipe right: Preview -> Markdown
+                  updateMobileTab("code");
+                }
+              }
+
+              touchStartX = 0;
+              touchStartY = 0;
+              isSwiping = false;
+            },
+            { passive: true }
+          );
+        }
+
+        // Sync mobile textarea changes with desktop
+        if (mobileTextarea) {
+          mobileTextarea.addEventListener("input", function () {
+            if (textarea) {
+              textarea.value = this.value;
+              currentMd = this.value;
+              renderAll();
+            }
+          });
+        }
+      }
+
       // =================== Event Listeners ===================
       textarea.addEventListener("input", function () {
         currentMd = this.value;
-        renderAll();
+        renderAll(); // renderAll now handles mobile syncing
       });
 
       // Layout switching
@@ -2663,26 +3017,87 @@ _Loading README..._`;
       // Load README content
       loadReadme();
 
+      // Ensure preview is updated after a short delay
+      setTimeout(() => {
+        renderAll();
+      }, 100);
+
       // Calculate and display project size
       calculateProjectSize();
 
       // Initialize theme
       initializeTheme();
 
-      // Initialize and start the clock
-      updateDateTime();
-      const clockInterval = setInterval(updateDateTime, 1000);
-
-      // PWA Lifecycle Management - Simplified and reliable
+      // PWA-friendly clock management
+      let clockInterval = null;
       let isShuttingDown = false;
 
+      function updateDateTime() {
+        // Don't update if we're shutting down
+        if (isShuttingDown) return;
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString("en-US", {
+          hour12: false,
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+        const dateString = now.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+        datetimeEl.textContent = `${dateString} ${timeString}`;
+      }
+
+      function startClock() {
+        // Clear any existing interval first
+        if (clockInterval) {
+          clearInterval(clockInterval);
+        }
+
+        updateDateTime();
+        clockInterval = setInterval(() => {
+          if (isShuttingDown) {
+            clearInterval(clockInterval);
+            clockInterval = null;
+            return;
+          }
+          updateDateTime();
+        }, 1000);
+      }
+
+      function stopClock() {
+        if (clockInterval) {
+          clearInterval(clockInterval);
+          clockInterval = null;
+        }
+      }
+
+      // Initialize clock
+      startClock();
+
+      // Initialize mobile tabs
+      initializeMobileTabs();
+
+      // PWA Lifecycle Management - Enhanced timer cleanup
       function performCleanShutdown() {
         if (isShuttingDown) return;
         isShuttingDown = true;
 
         try {
-          // Clear intervals immediately
-          clearInterval(clockInterval);
+          // Stop clock immediately and aggressively
+          stopClock();
+
+          // Double-check clock is stopped
+          setTimeout(() => stopClock(), 10);
+
+          // Clear any other potential intervals
+          for (let i = 1; i < 99999; i++) {
+            clearInterval(i);
+          }
 
           // Signal service worker
           if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
@@ -2716,7 +3131,10 @@ _Loading README..._`;
       // Method 4: visibility change (for PWA minimize/hide)
       document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "hidden") {
-          // Don't perform full shutdown on hide, just signal
+          // Stop clock when hidden to help with shutdown
+          stopClock();
+
+          // Signal service worker
           if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
             try {
               navigator.serviceWorker.controller.postMessage({
@@ -2727,17 +3145,32 @@ _Loading README..._`;
               console.log("SūperLight: SW message failed");
             }
           }
+        } else if (document.visibilityState === "visible") {
+          // Restart clock when visible again
+          if (!isShuttingDown) {
+            startClock();
+          }
         }
       });
 
       // Method 5: focus loss detection (additional PWA support)
       window.addEventListener("blur", () => {
+        // Stop clock on blur to help with shutdown
+        stopClock();
+
         // App lost focus - prepare for potential close
         setTimeout(() => {
           if (document.visibilityState === "hidden") {
             performCleanShutdown();
           }
         }, 100);
+      });
+
+      // Restart clock on focus if not shutting down
+      window.addEventListener("focus", () => {
+        if (!isShuttingDown && document.visibilityState === "visible") {
+          startClock();
+        }
       });
 
       // Register service worker for PWA functionality

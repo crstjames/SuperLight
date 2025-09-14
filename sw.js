@@ -1,5 +1,5 @@
 // SūperLight Service Worker
-const CACHE_NAME = "superlight-v1.0.5";
+const CACHE_NAME = "superlight-v1.0.12";
 const STATIC_CACHE_URLS = ["./index.html", "./manifest.json", "./README.md"];
 
 // Install event - cache static assets
